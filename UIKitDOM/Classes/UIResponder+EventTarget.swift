@@ -1,10 +1,10 @@
-@objc extension UIView: EventTarget {
+@objc extension UIResponder: EventTarget {
   private static var eventListenerCount: Int = 0;
   
   @nonobjc private static let association = ObjectAssociation<NSMutableDictionary>()
   var listenerMap: NSMutableDictionary? {
-    get { return UIView.association[self] }
-    set { UIView.association[self] = newValue }
+    get { return UIResponder.association[self] }
+    set { UIResponder.association[self] = newValue }
   }
   
   func addEventListener(_ type: NSString, _ callback: ((UIEvent) -> Void)?, _ options: AddEventListenerOptions?) -> NSString {
@@ -17,7 +17,7 @@
     // possible in Swift.
     let listenersForType: NSMutableDictionary = listenerMap.object(forKey: type) as? NSMutableDictionary ?? NSMutableDictionary()
     
-    UIView.eventListenerCount += 1;
+    UIResponder.eventListenerCount += 1;
     let listenerId = String(UIView.eventListenerCount) as NSString
     listenersForType.setObject([callback, options], forKey: listenerId)
     listenerMap.setObject(listenersForType, forKey: type)
