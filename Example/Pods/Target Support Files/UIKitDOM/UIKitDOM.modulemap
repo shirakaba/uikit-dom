@@ -1,0 +1,6 @@
+framework module UIKitDOM {
+  umbrella header "UIKitDOM-umbrella.h"
+
+  export *
+  module * { export * }
+}

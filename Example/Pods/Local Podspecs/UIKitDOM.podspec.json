@@ -1,0 +1,22 @@
+{
+  "name": "UIKitDOM",
+  "version": "0.1.0",
+  "summary": "A short description of UIKitDOM.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/shirakaba/UIKitDOM",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "shirakaba": "14055146+shirakaba@users.noreply.github.com"
+  },
+  "source": {
+    "git": "https://github.com/shirakaba/UIKitDOM.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source_files": "UIKitDOM/Classes/**/*"
+}
