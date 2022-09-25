@@ -1,15 +1,23 @@
 @objc extension UIResponder: EventTarget {
   private static var eventListenerCount: Int = 0;
   
-  @nonobjc private static let association = ObjectAssociation<NSMutableDictionary>()
-  var listenerMap: NSMutableDictionary? {
-    get { return UIResponder.association[self] }
-    set { UIResponder.association[self] = newValue }
+  @nonobjc private static let listenerMapAssociation = ObjectAssociation<NSMutableDictionary>()
+  var listenerMap: NSMutableDictionary {
+    get {
+      // Lazily initialise.
+      if let _listenerMap = UIResponder.listenerMapAssociation[self] {
+        return _listenerMap
+      }
+      
+      let _listenerMap = NSMutableDictionary()
+      UIResponder.listenerMapAssociation[self] = _listenerMap
+      return _listenerMap
+    }
+    set { UIResponder.listenerMapAssociation[self] = newValue }
   }
   
   func addEventListener(_ type: NSString, _ callback: ((Event) -> Void)?, _ options: AddEventListenerOptions?) -> NSString {
-    guard let callback = callback,
-          let listenerMap = self.listenerMap else { return "0" }
+    guard let callback = callback else { return "0" }
     
     let options = normalizeEventHandlerOptions(options)
     guard !(options.signal?.aborted ?? false) else { return "0" }
@@ -37,8 +45,7 @@
     for responder in chain {
       event.currentTarget = responder
       
-      guard let listenerMap = responder.listenerMap,
-            let listenersForType = listenerMap.object(forKey: eventType) as? NSMutableDictionary else { continue }
+      guard let listenersForType = listenerMap.object(forKey: eventType) as? NSMutableDictionary else { continue }
       
       handleEvent(
         listenersForType: listenersForType,
@@ -53,8 +60,7 @@
     for responder in chain.reversed() {
       event.currentTarget = responder
       
-      guard let listenerMap = responder.listenerMap,
-            let listenersForType = listenerMap.object(forKey: eventType) as? NSMutableDictionary else { continue }
+      guard let listenersForType = listenerMap.object(forKey: eventType) as? NSMutableDictionary else { continue }
       
       handleEvent(
         listenersForType: listenersForType,
@@ -72,9 +78,7 @@
   }
   
   func removeEventListenerById(_ type: NSString, _ id: NSString) {
-    guard id != "0",
-          let listenerMap = self.listenerMap,
-          let listenersForType: NSMutableDictionary = listenerMap.object(forKey: type) as? NSMutableDictionary else { return }
+    guard id != "0", let listenersForType: NSMutableDictionary = listenerMap.object(forKey: type) as? NSMutableDictionary else { return }
     listenersForType.removeObject(forKey: id)
     
     if(listenersForType.count == 0){
