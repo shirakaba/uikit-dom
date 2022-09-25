@@ -135,7 +135,9 @@
   }
   
   func initEvent(_ type: NSString, _ bubbles: OptionalBool?, _ cancelable: OptionalBool?) {
-    // stub, because it's a deprecated API in the first place.
+    self.eventType = type
+    self.bubbles = (bubbles ?? 0) == 1
+    self.cancelable = (cancelable ?? 0) == 1
   }
   
   func preventDefault() {
