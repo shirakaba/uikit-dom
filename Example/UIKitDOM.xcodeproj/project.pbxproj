@@ -29,7 +29,7 @@
 
 /* Begin PBXFileReference section */
 		0AB192607C4405AB05DF1D60 /* Pods-UIKitDOM_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIKitDOM_Example.release.xcconfig"; path = "Target Support Files/Pods-UIKitDOM_Example/Pods-UIKitDOM_Example.release.xcconfig"; sourceTree = "<group>"; };
-		4ACDEF6E3CD09D0AB6EA9D37 /* UIKitDOM.podspec */ = {isa = PBXFileReference; includeInIndex = 1; name = UIKitDOM.podspec; path = ../UIKitDOM.podspec; sourceTree = "<group>"; };
+		4ACDEF6E3CD09D0AB6EA9D37 /* UIKitDOM.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = UIKitDOM.podspec; path = ../UIKitDOM.podspec; sourceTree = "<group>"; };
 		5E946842043F0FF37B72EDE5 /* Pods-UIKitDOM_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIKitDOM_Tests.debug.xcconfig"; path = "Target Support Files/Pods-UIKitDOM_Tests/Pods-UIKitDOM_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* UIKitDOM_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UIKitDOM_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -44,9 +44,9 @@
 		74AF217D7EFA797B5674720E /* Pods-UIKitDOM_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIKitDOM_Tests.release.xcconfig"; path = "Target Support Files/Pods-UIKitDOM_Tests/Pods-UIKitDOM_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		82971213EFD92A134D8BF000 /* Pods_UIKitDOM_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UIKitDOM_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B16D81E67711F8699C3F4E9A /* Pods-UIKitDOM_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIKitDOM_Example.debug.xcconfig"; path = "Target Support Files/Pods-UIKitDOM_Example/Pods-UIKitDOM_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		C2E77EAEE341E80383663F57 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		C2E77EAEE341E80383663F57 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		C5564B131A39533B2D22F6D1 /* Pods_UIKitDOM_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UIKitDOM_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		E97535F37AACA9230996DC88 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		E97535F37AACA9230996DC88 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,7 +77,6 @@
 				5E946842043F0FF37B72EDE5 /* Pods-UIKitDOM_Tests.debug.xcconfig */,
 				74AF217D7EFA797B5674720E /* Pods-UIKitDOM_Tests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -228,6 +227,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -505,6 +505,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = UIKitDOM/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
@@ -520,6 +521,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = UIKitDOM/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
