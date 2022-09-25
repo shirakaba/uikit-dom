@@ -1,6 +1,6 @@
+private var eventListenerCount: Int = 0
+
 @objc extension UIResponder: EventTarget {
-  private static var eventListenerCount: Int = 0;
-  
   @nonobjc private static let listenerMapAssociation = ObjectAssociation<NSMutableDictionary>()
   var listenerMap: NSMutableDictionary {
     get {
@@ -26,8 +26,8 @@
     // possible in Swift.
     let listenersForType: NSMutableDictionary = listenerMap.object(forKey: type) as? NSMutableDictionary ?? NSMutableDictionary()
     
-    UIResponder.eventListenerCount += 1;
-    let listenerId = String(UIView.eventListenerCount) as NSString
+    eventListenerCount += 1;
+    let listenerId = String(eventListenerCount) as NSString
     listenersForType.setObject([callback, options], forKey: listenerId)
     listenerMap.setObject(listenersForType, forKey: type)
     
