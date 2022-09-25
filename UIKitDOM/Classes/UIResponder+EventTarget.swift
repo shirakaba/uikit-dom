@@ -16,7 +16,7 @@ private var eventListenerCount: Int = 0
     set { UIResponder.listenerMapAssociation[self] = newValue }
   }
   
-  func addEventListener(_ type: NSString, _ callback: ((Event) -> Void)?, _ options: AddEventListenerOptions?) -> NSString {
+  public func addEventListener(_ type: NSString, _ callback: ((Event) -> Void)?, _ options: AddEventListenerOptions?) -> NSString {
     guard let callback = callback else { return "0" }
     
     let options = normalizeEventHandlerOptions(options)
@@ -34,10 +34,11 @@ private var eventListenerCount: Int = 0
     return listenerId
   }
   
-  func dispatchEvent(_ event: Event) {
+  public func dispatchEvent(_ event: Event) {
     // The chain is ordered from the first-captured responder to this one.
     let chain = getResponderChain(self)
     let eventType = event.eventType
+    
     event.isTrusted = false
     
     // Capturing phase: the chain is ordered root -> target.
@@ -77,7 +78,7 @@ private var eventListenerCount: Int = 0
     }
   }
   
-  func removeEventListenerById(_ type: NSString, _ id: NSString) {
+  public func removeEventListenerById(_ type: NSString, _ id: NSString) {
     guard id != "0", let listenersForType: NSMutableDictionary = listenerMap.object(forKey: type) as? NSMutableDictionary else { return }
     listenersForType.removeObject(forKey: id)
     

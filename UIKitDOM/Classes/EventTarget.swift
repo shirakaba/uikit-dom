@@ -1,4 +1,4 @@
-@objc protocol EventTarget {
+@objc public protocol EventTarget {
   /**
       Adds a callback for the given Event type and EventListener options.
       - Attention: Does not check equality with previous callbacks added (not possible in Swift/Obj-C).
@@ -14,11 +14,11 @@
   func removeEventListenerById(_ type: NSString, _ id: NSString)
 }
 
-@objc protocol EventListenerOptions {
+@objc public protocol EventListenerOptions {
   @objc optional var capture: Bool { get set }
 }
 
-@objc protocol AddEventListenerOptions: EventListenerOptions {
+@objc public protocol AddEventListenerOptions: EventListenerOptions {
   @objc optional var once: Bool { get set }
   
   @objc optional var passive: Bool { get set }

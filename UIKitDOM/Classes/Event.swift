@@ -2,7 +2,7 @@
     - Attention: Readonly properties have been made settable for the sake of the internal
                  implementation. I've also introduced the 'propagation' backing state.
  */
-@objc protocol Event {
+@objc public protocol Event {
   var bubbles: Bool { get }
   var cancelBubble: Bool { get set }
   var cancelable: Bool { get }
@@ -34,6 +34,6 @@
   var NONE: NSNumber { get }
 }
 
-@objc enum EventPropagation: Int {
+@objc public enum EventPropagation: Int {
     case resume, stop, stopImmediate
 }
