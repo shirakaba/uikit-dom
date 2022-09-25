@@ -31,6 +31,24 @@ private var eventListenerCount: Int = 0
     listenersForType.setObject([callback, options], forKey: listenerId)
     listenerMap.setObject(listenersForType, forKey: type)
     
+    // TODO: if the event is of type "tap":
+    // - let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:))
+    // - self.isUserInteractionEnabled = true
+    // - self.addGestureRecognizer(tapRecognizer)
+    // - implement handleTap such that it:
+    //   1) calls the callback
+    //   2) permits the native behaviour (e.g. updating UISlider) only if
+    //      defaultPrevented remains false. This will require reading up on
+    //      native behaviour, which I think is only for UIKit controls, but may
+    //      also have implications like swiping to pop UIViewControllers from
+    //      UINavigationController.
+    // We could pass in a closure instead of actioning a selector this way:
+    //   https://stackoverflow.com/questions/26223944/uigesturerecognizer-with-closure
+    // UIKit control native behaviours:
+    // https://developer.apple.com/documentation/uikit/touches_presses_and_gestures/coordinating_multiple_gesture_recognizers/attaching_gesture_recognizers_to_uikit_controls
+    // UINavigationController's gesture recognizer:
+    // https://developer.apple.com/documentation/uikit/uinavigationcontroller/1621847-interactivepopgesturerecognizer
+    
     return listenerId
   }
   
