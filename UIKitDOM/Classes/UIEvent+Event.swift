@@ -1,7 +1,7 @@
 @objc extension UIEvent: Event {
   @nonobjc private static let bubblesAssociation = ObjectAssociation<NSNumber>()
-  var bubblesFlag: NSNumber? {
-    get { return UIEvent.bubblesAssociation[self] }
+  var bubblesFlag: NSNumber {
+    get { return UIEvent.bubblesAssociation[self] ?? 0 }
     set { UIEvent.bubblesAssociation[self] = newValue }
   }
   var bubbles: Bool {
@@ -16,12 +16,15 @@
   }
   var cancelBubble: Bool {
     get { return cancelBubbleFlag == 1 }
-    set { cancelBubbleFlag = newValue ? 1 : 0 }
+    set {
+      cancelBubbleFlag = newValue ? 1 : 0
+      propagation = EventPropagation.stop
+    }
   }
   
   @nonobjc private static let cancelableAssociation = ObjectAssociation<NSNumber>()
-  var cancelableFlag: NSNumber? {
-    get { return UIEvent.cancelableAssociation[self] }
+  var cancelableFlag: NSNumber {
+    get { return UIEvent.cancelableAssociation[self] ?? 0 }
     set { UIEvent.cancelableAssociation[self] = newValue }
   }
   var cancelable: Bool {
@@ -30,8 +33,8 @@
   }
 
   @nonobjc private static let composedAssociation = ObjectAssociation<NSNumber>()
-  var composedFlag: NSNumber? {
-    get { return UIEvent.composedAssociation[self] }
+  var composedFlag: NSNumber {
+    get { return UIEvent.composedAssociation[self] ?? 0 }
     set { UIEvent.composedAssociation[self] = newValue }
   }
   var composed: Bool {
@@ -50,8 +53,8 @@
   }
   
   @nonobjc private static let defaultPreventedAssociation = ObjectAssociation<NSNumber>()
-  var defaultPreventedFlag: NSNumber? {
-    get { return UIEvent.defaultPreventedAssociation[self] }
+  var defaultPreventedFlag: NSNumber {
+    get { return UIEvent.defaultPreventedAssociation[self] ?? 0 }
     set { UIEvent.defaultPreventedAssociation[self] = newValue }
   }
   var defaultPrevented: Bool {
@@ -60,18 +63,18 @@
   }
   
   @nonobjc private static let eventPhaseAssociation = ObjectAssociation<NSNumber>()
-  var eventPhaseFlag: NSNumber? {
-    get { return UIEvent.eventPhaseAssociation[self] }
+  var eventPhaseFlag: NSNumber {
+    get { return UIEvent.eventPhaseAssociation[self] ?? self.NONE }
     set { UIEvent.eventPhaseAssociation[self] = newValue }
   }
   var eventPhase: NSNumber {
-    get { return eventPhaseFlag ?? self.NONE }
+    get { return eventPhaseFlag }
     set { eventPhaseFlag = newValue }
   }
   
   @nonobjc private static let isTrustedAssociation = ObjectAssociation<NSNumber>()
-  var isTrustedFlag: NSNumber? {
-    get { return UIEvent.isTrustedAssociation[self] }
+  var isTrustedFlag: NSNumber {
+    get { return UIEvent.isTrustedAssociation[self] ?? 1 }
     set { UIEvent.isTrustedAssociation[self] = newValue }
   }
   var isTrusted: Bool {
@@ -79,9 +82,11 @@
     set { isTrustedFlag = newValue ? 1 : 0 }
   }
 
+  // Our implementation is not totally spec-compliant (we don't track a
+  // 'canceled' attribute) but it's deprecated anyway.
   @nonobjc private static let returnValueAssociation = ObjectAssociation<NSNumber>()
-  var returnValueFlag: NSNumber? {
-    get { return UIEvent.returnValueAssociation[self] }
+  var returnValueFlag: NSNumber {
+    get { return UIEvent.returnValueAssociation[self] ?? 1 }
     set { UIEvent.returnValueAssociation[self] = newValue }
   }
   var returnValue: Bool {
@@ -142,6 +147,7 @@
   
   func preventDefault() {
     defaultPrevented = true
+    returnValue = false
   }
   
   func stopImmediatePropagation() {
@@ -153,12 +159,12 @@
   }
   
   @nonobjc private static let propagationAssociation = ObjectAssociation<NSNumber>()
-  var propagationFlag: NSNumber? {
-    get { return UIEvent.propagationAssociation[self] }
+  var propagationFlag: NSNumber {
+    get { return UIEvent.propagationAssociation[self] ?? NSNumber(value: EventPropagation.resume.rawValue) }
     set { UIEvent.propagationAssociation[self] = newValue }
   }
   var propagation: EventPropagation {
-    get { return EventPropagation(rawValue: propagationFlag?.intValue ?? 0) ?? EventPropagation.resume }
+    get { return EventPropagation(rawValue: propagationFlag.intValue) ?? EventPropagation.resume }
     set { propagationFlag = NSNumber(value: newValue.rawValue) }
   }
   

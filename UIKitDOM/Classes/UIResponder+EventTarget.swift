@@ -30,6 +30,7 @@
     // The chain is ordered from the first-captured responder to this one.
     let chain = getResponderChain(self)
     let eventType = event.eventType
+    event.isTrusted = false
     
     // Capturing phase: the chain is ordered root -> target.
     event.eventPhase = event.CAPTURING_PHASE

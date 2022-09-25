@@ -1,6 +1,6 @@
 /**
-    - Attention: Some readonly properties have been made settable for the sake of the internal
-                 implementation: eventPhase, currentTarget. I've also introduced the 'propagation' state.
+    - Attention: Readonly properties have been made settable for the sake of the internal
+                 implementation. I've also introduced the 'propagation' backing state.
  */
 @objc protocol Event {
   var bubbles: Bool { get }
@@ -10,7 +10,7 @@
   var currentTarget: EventTarget? { get set }
   var defaultPrevented: Bool { get }
   var eventPhase: NSNumber { get set }
-  var isTrusted: Bool { get }
+  var isTrusted: Bool { get set }
   /** @deprecated */
   var returnValue: Bool  { get }
   /** @deprecated */
