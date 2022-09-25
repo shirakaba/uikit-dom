@@ -4,7 +4,7 @@
     get { return UIEvent.bubblesAssociation[self] ?? 0 }
     set { UIEvent.bubblesAssociation[self] = newValue }
   }
-  var bubbles: Bool {
+  public var bubbles: Bool {
     get { return bubblesFlag == 1 }
     set { bubblesFlag = newValue ? 1 : 0 }
   }
@@ -14,7 +14,7 @@
     get { return UIEvent.cancelBubbleAssociation[self] }
     set { UIEvent.cancelBubbleAssociation[self] = newValue }
   }
-  var cancelBubble: Bool {
+  public var cancelBubble: Bool {
     get { return cancelBubbleFlag == 1 }
     set {
       cancelBubbleFlag = newValue ? 1 : 0
@@ -27,7 +27,7 @@
     get { return UIEvent.cancelableAssociation[self] ?? 0 }
     set { UIEvent.cancelableAssociation[self] = newValue }
   }
-  var cancelable: Bool {
+  public var cancelable: Bool {
     get { return cancelableFlag == 1 }
     set { cancelableFlag = newValue ? 1 : 0 }
   }
@@ -37,7 +37,7 @@
     get { return UIEvent.composedAssociation[self] ?? 0 }
     set { UIEvent.composedAssociation[self] = newValue }
   }
-  var composed: Bool {
+  public var composed: Bool {
     get { return composedFlag == 1 }
     set { composedFlag = newValue ? 1 : 0 }
   }
@@ -47,7 +47,7 @@
     get { return UIEvent.currentTargetAssociation[self] }
     set { UIEvent.currentTargetAssociation[self] = newValue }
   }
-  var currentTarget: EventTarget? {
+  public var currentTarget: EventTarget? {
     get { return currentTargetFlag }
     set { currentTargetFlag = newValue }
   }
@@ -57,7 +57,7 @@
     get { return UIEvent.defaultPreventedAssociation[self] ?? 0 }
     set { UIEvent.defaultPreventedAssociation[self] = newValue }
   }
-  var defaultPrevented: Bool {
+  public var defaultPrevented: Bool {
     get { return defaultPreventedFlag == 1 }
     set { defaultPreventedFlag = newValue ? 1 : 0 }
   }
@@ -67,7 +67,7 @@
     get { return UIEvent.eventPhaseAssociation[self] ?? self.NONE }
     set { UIEvent.eventPhaseAssociation[self] = newValue }
   }
-  var eventPhase: NSNumber {
+  public var eventPhase: NSNumber {
     get { return eventPhaseFlag }
     set { eventPhaseFlag = newValue }
   }
@@ -77,7 +77,7 @@
     get { return UIEvent.isTrustedAssociation[self] ?? 1 }
     set { UIEvent.isTrustedAssociation[self] = newValue }
   }
-  var isTrusted: Bool {
+  public var isTrusted: Bool {
     get { return isTrustedFlag == 1 }
     set { isTrustedFlag = newValue ? 1 : 0 }
   }
@@ -89,7 +89,7 @@
     get { return UIEvent.returnValueAssociation[self] ?? 1 }
     set { UIEvent.returnValueAssociation[self] = newValue }
   }
-  var returnValue: Bool {
+  public var returnValue: Bool {
     get { return returnValueFlag == 1 }
     set { returnValueFlag = newValue ? 1 : 0 }
   }
@@ -99,7 +99,7 @@
     get { return UIEvent.srcElementAssociation[self] }
     set { UIEvent.srcElementAssociation[self] = newValue }
   }
-  var srcElement: EventTarget? {
+  public var srcElement: EventTarget? {
     get { return srcElementFlag }
     set { srcElementFlag = newValue }
   }
@@ -109,7 +109,7 @@
     get { return UIEvent.targetAssociation[self] }
     set { UIEvent.targetAssociation[self] = newValue }
   }
-  var target: EventTarget? {
+  public var target: EventTarget? {
     get { return targetFlag }
     set { targetFlag = newValue }
   }
@@ -119,7 +119,7 @@
     get { return UIEvent.timeStampAssociation[self] }
     set { UIEvent.timeStampAssociation[self] = newValue }
   }
-  var timeStamp: NSDate {
+  public var timeStamp: NSDate {
     get { return timeStampFlag ?? NSDate.init(timeIntervalSinceNow: 0) }
     set { timeStampFlag = newValue }
   }
@@ -129,32 +129,32 @@
     get { return UIEvent.eventTypeAssociation[self] }
     set { UIEvent.eventTypeAssociation[self] = newValue }
   }
-  var eventType: NSString {
+  public var eventType: NSString {
     get { return eventTypeFlag ?? "" }
     set { eventTypeFlag = newValue }
   }
   
-  func composedPath() -> [EventTarget] {
+  public func composedPath() -> [EventTarget] {
     guard let target = self.target as? UIResponder else { return [] }
     return getResponderChain(target).reversed()
   }
   
-  func initEvent(_ type: NSString, _ bubbles: OptionalBool?, _ cancelable: OptionalBool?) {
+  public func initEvent(_ type: NSString, _ bubbles: OptionalBool?, _ cancelable: OptionalBool?) {
     self.eventType = type
     self.bubbles = (bubbles ?? 0) == 1
     self.cancelable = (cancelable ?? 0) == 1
   }
   
-  func preventDefault() {
+  public func preventDefault() {
     defaultPrevented = true
     returnValue = false
   }
   
-  func stopImmediatePropagation() {
+  public func stopImmediatePropagation() {
     propagation = EventPropagation.stopImmediate
   }
   
-  func stopPropagation() {
+  public func stopPropagation() {
     propagation = EventPropagation.stop
   }
   
@@ -163,24 +163,24 @@
     get { return UIEvent.propagationAssociation[self] ?? NSNumber(value: EventPropagation.resume.rawValue) }
     set { UIEvent.propagationAssociation[self] = newValue }
   }
-  var propagation: EventPropagation {
+  public var propagation: EventPropagation {
     get { return EventPropagation(rawValue: propagationFlag.intValue) ?? EventPropagation.resume }
     set { propagationFlag = NSNumber(value: newValue.rawValue) }
   }
   
-  var AT_TARGET: NSNumber {
+  public var AT_TARGET: NSNumber {
     return 2
   }
   
-  var BUBBLING_PHASE: NSNumber {
+  public var BUBBLING_PHASE: NSNumber {
     return 3
   }
   
-  var CAPTURING_PHASE: NSNumber {
+  public var CAPTURING_PHASE: NSNumber {
     return 1
   }
   
-  var NONE: NSNumber {
+  public var NONE: NSNumber {
     return 0
   }
 }
