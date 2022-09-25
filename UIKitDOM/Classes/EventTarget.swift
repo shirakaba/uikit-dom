@@ -9,7 +9,7 @@
   func dispatchEvent(_ event: Event)
   
   /**
-      Removes the callback for the given id.
+      Removes the callback for the given id (as Swift/Obj-C cannot compare equality of closures).
   */
   func removeEventListenerById(_ type: NSString, _ id: NSString)
 }
