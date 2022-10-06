@@ -1,4 +1,5 @@
 private var eventListenerCount: Int = 0
+private let recognizedEvents: Set<NSString> = ["tap"]
 
 @objc extension UIResponder: EventTarget {
   @nonobjc private static let listenerMapAssociation = ObjectAssociation<NSMutableDictionary>()
@@ -16,10 +17,13 @@ private var eventListenerCount: Int = 0
     set { UIResponder.listenerMapAssociation[self] = newValue }
   }
   
-  public func addEventListener(_ type: NSString, _ callback: ((Event) -> Void)?, _ options: AddEventListenerOptions?) -> NSString {
+  public func addEventListener(
+    _ type: NSString,
+    _ callback: ((Event) -> Void)? = nil,
+    _ options: AddEventListenerOptions? = nil
+  ) -> NSString {
     guard let callback = callback else { return "0" }
-    
-    let options = normalizeEventHandlerOptions(options)
+    let options = options ?? AddEventListenerOptions()
     guard !(options.signal?.aborted ?? false) else { return "0" }
     
     // Ideally we'd compare equality with existing callbacks, but that's not
@@ -31,11 +35,13 @@ private var eventListenerCount: Int = 0
     listenersForType.setObject([callback, options], forKey: listenerId)
     listenerMap.setObject(listenersForType, forKey: type)
     
+    self.listenForNativeEvent(type: type)
+    
     // TODO: if the event is of type "tap":
-    // - let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:))
+    // - let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:_:))
     // - self.isUserInteractionEnabled = true
     // - self.addGestureRecognizer(tapRecognizer)
-    // - implement handleTap such that it:
+    // - implement handleTap(sender: UIButton, forEvent event: UIEvent) such that it:
     //   1) calls the callback
     //   2) permits the native behaviour (e.g. updating UISlider) only if
     //      defaultPrevented remains false. This will require reading up on
@@ -49,9 +55,60 @@ private var eventListenerCount: Int = 0
     // UINavigationController's gesture recognizer:
     // https://developer.apple.com/documentation/uikit/uinavigationcontroller/1621847-interactivepopgesturerecognizer
     
+    // Upon addEventListener, we could call
+    // self.addGestureRecognizer(tapRecognizer) and the handleTap() action could
+    // simply call dispatchEvent of a UIEvent with any extra info on it. That
+    // extra info could include the default native callback to be called.
+    //
+    // See also "you can intercept incoming events by subclassing UIApplication
+    // and overriding this method." on the UIApplication.sendEvent() docs:
+    // https://developer.apple.com/documentation/uikit/uiapplication/1623043-sendevent
+    
+    // A gesture recognizer operates on touches hit-tested to a specific view
+    // and all of that view’s subviews. It thus must be associated with that
+    // view. To make that association you must call the UIView method
+    // addGestureRecognizer(_:). A gesture recognizer doesn’t participate in the
+    // view’s responder chain.
+    // https://developer.apple.com/documentation/uikit/uigesturerecognizer
+    
     return listenerId
   }
   
+  func listenForNativeEvent(type: NSString){
+    guard let self = self as? UIView else { return }
+    
+    if(type == "tap" || type == "doubletap"){
+      let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+      tapRecognizer.numberOfTapsRequired = type == "doubletap" ? 2 : 1
+      self.addGestureRecognizer(tapRecognizer)
+      
+      // tapRecognizer.cancelsTouchesInView
+      // self.isUserInteractionEnabled = true
+      // self.addGestur
+      // self.addGestureRecognizer(tapRecognizer)
+      return
+    }
+    
+//    if(type == "pan"){
+//      let recognizer = UIPanGestureRecognizer(target: self, action: #selector(self.handlePan(_:))
+//    }
+  }
+  
+  @objc func handleTap(_ sender: UITapGestureRecognizer){
+    guard let self = self as? UIView else { return }
+    
+    var touches: [CGPoint] = []
+    for i in 0..<sender.numberOfTouches {
+      touches.append(sender.location(ofTouch: i, in: self))
+    }
+    
+    // self.dispatchEvent(<#T##event: Event##Event#>)
+  }
+                                              
+//  @objc func handlePan(_ sender: UITapGestureRecognizer){
+//    guard let self = self as? UIView else { return }
+//  }
+
   public func dispatchEvent(_ event: Event) {
     // The chain is ordered from the first-captured responder to this one.
     let chain = getResponderChain(self)
@@ -137,28 +194,14 @@ func handleEvent(
     if(event.target === event.currentTarget){
       event.eventPhase = event.AT_TARGET
       callback(event)
-      if(options.once ?? false){
+      if(options.once){
         listenersForType.removeObject(forKey: key)
       }
       guard event.propagation != EventPropagation.stopImmediate else { return }
     }
     
-    if(initialEventPhase == event.CAPTURING_PHASE && !(options.capture ?? false)){
+    if(initialEventPhase == event.CAPTURING_PHASE && !options.capture){
       continue
     }
   }
-}
-
-func normalizeEventHandlerOptions(_ options: AddEventListenerOptions?) -> AddEventListenerOptions {
-  var returnValue: [String: Any] = [
-    "capture": options?.capture ?? false,
-    "once": options?.once ?? false,
-    "passive": options?.passive ?? false,
-  ]
-  
-  if let signal = options?.signal {
-    returnValue["signal"] = signal
-  }
-
-  return returnValue as! AddEventListenerOptions;
 }

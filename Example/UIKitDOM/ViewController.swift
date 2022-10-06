@@ -1,24 +1,22 @@
-//
-//  ViewController.swift
-//  UIKitDOM
-//
-//  Created by shirakaba on 09/24/2022.
-//  Copyright (c) 2022 shirakaba. All rights reserved.
-//
-
 import UIKit
+import UIKitDOM
 
 class ViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    let _ = self.view.addEventListener(
+      "tap",
+      {(event: UIKitDOM.Event) -> Void in
+        print("Got a tap event during phase: \(event.eventPhase)")
+        event.preventDefault()
+        event.stopPropagation()
+      },
+      AddEventListenerOptions(capture: 1)
+    )
+    
+    let event = UIEvent()
+    event.initEvent("tap", true, true)
+    self.view.dispatchEvent(event)
+  }
 }
-

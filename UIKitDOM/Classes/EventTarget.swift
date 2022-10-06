@@ -14,16 +14,21 @@
   func removeEventListenerById(_ type: NSString, _ id: NSString)
 }
 
-@objc public protocol EventListenerOptions {
-  @objc optional var capture: Bool { get set }
-}
-
-@objc public protocol AddEventListenerOptions: EventListenerOptions {
-  @objc optional var once: Bool { get set }
+@objc public class AddEventListenerOptions: NSObject {
+  // Default false
+  public var capture: Bool
+  // Default false
+  public var once: Bool
+  // Default false
+  public var passive: Bool
+  // Default nil
+  public var signal: AbortSignal?
   
-  @objc optional var passive: Bool { get set }
-  
-  // This is mainly here as a stub; I don't intend to support anything related
-  // to AbortController anytime soon.
-  @objc optional var signal: AbortSignal { get set }
+  // As there is no optional Bool in Obj-C, we represent it using an optional NSNumber (true: 1, false: all other values)
+  @objc public init(capture: NSNumber? = nil, once: NSNumber? = nil, passive: NSNumber? = nil, signal: AbortSignal? = nil) {
+    self.capture = capture?.intValue == 1
+    self.once = once?.intValue == 1
+    self.passive = passive?.intValue == 1
+    self.signal = signal
+  }
 }
