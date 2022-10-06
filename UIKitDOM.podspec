@@ -26,9 +26,9 @@ TODO: Add long description of the pod here.
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'shirakaba' => '14055146+shirakaba@users.noreply.github.com' }
   s.source           = { :git => 'https://github.com/shirakaba/UIKitDOM.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.social_media_url = 'https://twitter.com/LinguaBrowse'
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '12.4'
 
   s.source_files = 'UIKitDOM/Classes/**/*'
   
@@ -37,6 +37,6 @@ TODO: Add long description of the pod here.
   # }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
+  s.frameworks = 'UIKit'
   # s.dependency 'AFNetworking', '~> 2.3'
 end
