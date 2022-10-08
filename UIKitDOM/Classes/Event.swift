@@ -7,15 +7,15 @@
   var cancelBubble: Bool { get set }
   var cancelable: Bool { get }
   var composed: Bool { get }
-  var currentTarget: EventTarget? { get set }
+  weak var currentTarget: EventTarget? { get set }
   var defaultPrevented: Bool { get }
   var eventPhase: NSNumber { get set }
   var isTrusted: Bool { get set }
   /** @deprecated */
   var returnValue: Bool  { get }
   /** @deprecated */
-  var srcElement: EventTarget? { get }
-  var target: EventTarget? { get }
+  weak var srcElement: EventTarget? { get }
+  weak var target: EventTarget? { get }
   var timeStamp: NSDate { get }
   /**
       - Attention: Renamed from type to "type" to "eventType" to avoid nameclash with existing Obj-C property.

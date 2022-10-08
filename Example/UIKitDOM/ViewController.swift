@@ -5,6 +5,12 @@ class ViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    let scrollView = UIScrollView(frame: self.view.frame)
+    self.view.addSubview(scrollView)
+    self.view.addSubview(UIButton())
+    self.view.addSubview(UILabel())
+    self.view.addSubview(UITextField())
+    
     let _ = self.view.addEventListener(
       "tap",
       {(event: UIKitDOM.Event) -> Void in
@@ -17,6 +23,6 @@ class ViewController: UIViewController {
     
     let event = UIEvent()
     event.initEvent("tap", true, true)
-    self.view.dispatchEvent(event)
+    scrollView.dispatchEvent(event)
   }
 }

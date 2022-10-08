@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   override init() {
       super.init()
       UIView.swizzleDOM
+      UIApplication.swizzleDOM
   }
 
   var window: UIWindow?

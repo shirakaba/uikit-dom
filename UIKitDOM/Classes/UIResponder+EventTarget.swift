@@ -78,9 +78,9 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     guard let self = self as? UIView else { return }
     
     if(type == "tap" || type == "doubletap"){
-      let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
-      tapRecognizer.numberOfTapsRequired = type == "doubletap" ? 2 : 1
-      self.addGestureRecognizer(tapRecognizer)
+//      let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+//      tapRecognizer.numberOfTapsRequired = type == "doubletap" ? 2 : 1
+//      self.addGestureRecognizer(tapRecognizer)
       
       // tapRecognizer.cancelsTouchesInView
       // self.isUserInteractionEnabled = true

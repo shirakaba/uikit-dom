@@ -11,16 +11,23 @@ private let swizzle: (AnyClass, Selector, Selector) -> () = { forClass, original
 
 extension UIView {
   public static let swizzleDOM: Void = {
-    // If we want to make sure this isn't a subclass
-    // guard self === UIView.self else { return }
-    let originalSelector = #selector(UIView.point(inside:with:))
-    let swizzledSelector = #selector(UIView.swizzled_point(inside:with:))
-    swizzle(UIView.self, originalSelector, swizzledSelector)
+    swizzle(UIView.self, #selector(UIView.point(inside:with:)), #selector(UIView.swizzled_point(inside:with:)))
   }()
   
+  public static let lastHitMap: NSMapTable<UIEvent, UIView> = NSMapTable.weakToWeakObjects()
+  
   @objc func swizzled_point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-    print("[\(String(describing: type(of: self)))] swizzled_point(inside:point, with:\(String(describing: event).replacingOccurrences(of: "\n", with: "")))")
-    // return false
-    return swizzled_point(inside: point, with: event)
+    let result = swizzled_point(inside: point, with: event)
+    
+    // If the hit test succeeded, then keep a record of this view as being the
+    // last-hit UIView that UIKit was traversing past with this event. We can
+    // then ascertain what the target for the event is without access to private
+    // APIs.
+    if(result && event != nil){
+      UIView.lastHitMap.setObject(self, forKey: event)
+    }
+    
+    print("[\(String(describing: type(of: self))):\(result)] swizzled_point(inside:point, with:\(String(describing: event).replacingOccurrences(of: "\n", with: "")))")
+    return result
   }
 }
