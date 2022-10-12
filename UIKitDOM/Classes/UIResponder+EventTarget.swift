@@ -1,7 +1,7 @@
 private var eventListenerCount: Int = 0
 private let recognizedEvents: Set<NSString> = ["tap"]
 
-@objc extension UIResponder: EventTarget {
+@objc extension UIResponder: EventTarget, UIGestureRecognizerDelegate {
   @nonobjc private static let listenerMapAssociation = ObjectAssociation<NSMutableDictionary>()
   var listenerMap: NSMutableDictionary {
     get {
@@ -19,7 +19,7 @@ private let recognizedEvents: Set<NSString> = ["tap"]
   
   public func addEventListener(
     _ type: NSString,
-    _ callback: ((Event) -> Void)? = nil,
+    _ callback: ((EventProtocol) -> Void)? = nil,
     _ options: AddEventListenerOptions? = nil
   ) -> NSString {
     guard let callback = callback else { return "0" }
@@ -74,11 +74,18 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     return listenerId
   }
   
-  func listenForNativeEvent(type: NSString){
+  func listenForNativeEvent(type: NSString, callback: ((EventProtocol) -> Void)? = nil){
     guard let self = self as? UIView else { return }
     
     if(type == "tap" || type == "doubletap"){
+//      self.onTap = ClosureSleeve(callback)
       let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+      
+//      UITapGestureRecognizer(target: self, { recognizer in
+//        print("Hallo")
+//      }
+      
+      tapRecognizer.delegate = self
       tapRecognizer.numberOfTapsRequired = type == "doubletap" ? 2 : 1
       self.addGestureRecognizer(tapRecognizer)
       
@@ -102,6 +109,7 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     
     print("[\(String(describing: type(of: self)))] HANDLE TAP. self is UIScrollView: \(self is UIScrollView)")
     guard let self = self as? UIView else { return }
+    guard let window = self.window else { return }
     
     var touches: [CGPoint] = []
     for i in 0..<sender.numberOfTouches {
@@ -110,14 +118,62 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     
     // We're too late to get the UITouchesEvent, I think.
     
-    // self.dispatchEvent(<#T##event: Event##Event#>)
+    let locationInWindow = sender.location(ofTouch: 0, in: window)
+    let locationInSelf = sender.location(ofTouch: 0, in: self)
+    let event = MouseEvent("tap", true, true, window, 0, locationInWindow.x as NSNumber, locationInWindow.y as NSNumber, locationInSelf.x as NSNumber, locationInSelf.y as NSNumber, false, false, false, false, 0, nil)
+    
+    self.dispatchEvent(event)
   }
+  
+//  @nonobjc private static let onTapAssociation = ObjectAssociation<ClosureSleeve>()
+//  var onTapBackingVar: ClosureSleeve? {
+//    get { return UIResponder.onTapAssociation[self] }
+//    set { UIResponder.onTapAssociation[self] = newValue }
+//  }
+//  public var onTap: ClosureSleeve? {
+//    get { return onTapBackingVar }
+//    set { onTapBackingVar = newValue }
+//  }
+  
+  public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    print("gestureRecognizer(\(NSStringFromClass(type(of: gestureRecognizer.view!))), shouldRequireFailureOf: \(NSStringFromClass(type(of: otherGestureRecognizer.view!))))")
+    
+    // Requires that this gesturesRecognizer will only take a look if the other
+    // gestureRecognizer closer to the root already failed. This would allow us
+    // to let capturing listeners see the event first.
+    var nextResponder = self.next
+    while nextResponder != nil {
+      if(otherGestureRecognizer.view === nextResponder){
+        return true
+      }
+      nextResponder = nextResponder?.next
+    }
+    
+    return false
+  }
+  
+  public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
+    // The current problem is that we never call the user's UIEvent -> ()
+    // closure because there is no obvious delegate method that passes us the
+    // UIEvent involved with the gesture.
+    if(event.defaultPrevented){
+      print("Blocking UIEvent from reaching gestureRecognizer, as it had defaultPrevented.")
+      return false
+    }
+    return true
+  }
+  
+//  public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+//
+//    return true
+//  }
                                               
 //  @objc func handlePan(_ sender: UITapGestureRecognizer){
 //    guard let self = self as? UIView else { return }
 //  }
 
-  public func dispatchEvent(_ event: Event) {
+  public func dispatchEvent(_ event: EventProtocol) {
+    event.target = self
     // The chain is ordered from the first-captured responder to this one.
     let chain = getResponderChain(self)
     let eventType = event.eventType
@@ -174,6 +230,7 @@ private let recognizedEvents: Set<NSString> = ["tap"]
 /**
  Returns the responder chain, ordered from the root (first entry) to the most nested element, AKA "target" (last
  entry). Includes the responder itself as the final element in the array.
+ - Example: [UIWindow, UITransitionView, UIDropShadowView, UIView, UIScrollView]
  */
 func getResponderChain(_ responder: UIResponder) -> [UIResponder] {
   var chain = [responder]
@@ -187,7 +244,7 @@ func getResponderChain(_ responder: UIResponder) -> [UIResponder] {
 
 private func handleEvent(
   listenersForType: NSMutableDictionary,
-  event: Event
+  event: EventProtocol
 ){
   // Keep track of whether we're bubbling or capturing.
   let initialEventPhase = event.eventPhase
@@ -195,7 +252,7 @@ private func handleEvent(
   for key in listenersForType.allKeys {
     guard let listenersForTypeValue = listenersForType.object(forKey: key),
           let listenerTuple = listenersForTypeValue as? [AnyObject],
-          let callback = listenerTuple[0] as? (Event) -> Void,
+          let callback = listenerTuple[0] as? (EventProtocol) -> Void,
           let options = listenerTuple[1] as? AddEventListenerOptions
     else { continue }
     

@@ -1,4 +1,4 @@
-@objc extension UIEvent: Event {
+@objc extension UIEvent: EventProtocol {
   @nonobjc private static let bubblesAssociation = ObjectAssociation<NSNumber>()
   var bubblesFlag: NSNumber {
     get { return UIEvent.bubblesAssociation[self] ?? 0 }
@@ -188,5 +188,98 @@
   
   public var NONE: NSNumber {
     return 0
+  }
+}
+
+
+//@objc public class UIEvent: UIEvent, UIEventProtocol {
+//}
+
+@objc public class MouseEvent: UIEvent, MouseEventProtocol {
+  public var altKey: Bool
+  
+  public var button: NSNumber
+  
+  public var buttons: NSNumber = 0
+  
+  public var clientX: NSNumber
+  
+  public var clientY: NSNumber
+  
+  public var ctrlKey: Bool
+  
+  public var metaKey: Bool
+  
+  public var movementX: NSNumber = 0
+  
+  public var movementY: NSNumber = 0
+  
+  public var offsetX: NSNumber = 0
+  
+  public var offsetY: NSNumber = 0
+  
+  public var pageX: NSNumber = 0
+  
+  public var pageY: NSNumber = 0
+  
+  public var relatedTarget: EventTarget?
+  
+  public var screenX: NSNumber
+  
+  public var screenY: NSNumber
+  
+  public var shiftKey: Bool
+  
+  public var x: NSNumber = 0
+  
+  public var y: NSNumber = 0
+  
+  public func getModifierState(keyArg: NSString) -> Bool {
+    return true
+  }
+  
+  public var detail: NSNumber
+  
+  public var view: UIWindow?
+  
+  public var which: NSNumber = 0
+  
+  public func initUIEvent(_ typeArg: NSString, _ bubblesArg: OptionalBool?, _ cancelableArg: OptionalBool?, _ viewArg: UIWindow?, _ detailArg: NSNumber?) {
+    super.initEvent(typeArg, bubblesArg, cancelableArg)
+    self.view = viewArg
+    self.detail = detailArg ?? 0
+  }
+  
+  public func initMouseEvent(_ typeArg: NSString, _ canBubbleArg: Bool, _ cancelableArg: Bool, _ viewArg: UIWindow, _ detailArg: NSNumber, _ screenXArg: NSNumber, _ screenYArg: NSNumber, _ clientXArg: NSNumber, _ clientYArg: NSNumber, _ ctrlKeyArg: Bool, _ altKeyArg: Bool, _ shiftKeyArg: Bool, _ metaKeyArg: Bool, _ buttonArg: NSNumber, _ relatedTargetArg: EventTarget?) {
+    self.initUIEvent(typeArg, canBubbleArg ? 1 : 0, cancelableArg ? 1 : 0, viewArg, detailArg)
+    self.screenX = screenXArg
+    self.screenY = screenYArg
+    self.clientX = clientXArg
+    self.clientY = clientYArg
+    self.ctrlKey = ctrlKeyArg
+    self.altKey = altKeyArg
+    self.shiftKey = shiftKeyArg
+    self.metaKey = metaKeyArg
+    self.button = buttonArg
+    self.relatedTarget = relatedTargetArg
+  }
+  
+  public init(_ typeArg: NSString, _ canBubbleArg: Bool, _ cancelableArg: Bool, _ viewArg: UIWindow, _ detailArg: NSNumber, _ screenXArg: NSNumber, _ screenYArg: NSNumber, _ clientXArg: NSNumber, _ clientYArg: NSNumber, _ ctrlKeyArg: Bool, _ altKeyArg: Bool, _ shiftKeyArg: Bool, _ metaKeyArg: Bool, _ buttonArg: NSNumber, _ relatedTargetArg: EventTarget?){
+    self.view = viewArg
+    self.detail = detailArg
+    self.screenX = screenXArg
+    self.screenY = screenYArg
+    self.clientX = clientXArg
+    self.clientY = clientYArg
+    self.ctrlKey = ctrlKeyArg
+    self.altKey = altKeyArg
+    self.shiftKey = shiftKeyArg
+    self.metaKey = metaKeyArg
+    self.button = buttonArg
+    self.relatedTarget = relatedTargetArg
+    super.init()
+    super.initEvent(typeArg, canBubbleArg ? 1 : 0, cancelableArg ? 1 : 0)
+    // self.initMouseEvent(typeArg, canBubbleArg, cancelableArg, viewArg, detailArg, screenXArg, screenYArg, clientXArg, clientYArg, ctrlKeyArg, altKeyArg, shiftKeyArg, metaKeyArg, buttonArg, relatedTargetArg)
+
   }
 }

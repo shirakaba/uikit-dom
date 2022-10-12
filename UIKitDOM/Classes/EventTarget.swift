@@ -4,9 +4,9 @@
       - Attention: Does not check equality with previous callbacks added (not possible in Swift/Obj-C).
       - Returns: The id of the added callback (or "0" if no callback was added).
   */
-  func addEventListener(_ type: NSString, _ callback: ((_ event: Event) -> Void)?, _ options: AddEventListenerOptions?) -> NSString
+  func addEventListener(_ type: NSString, _ callback: ((_ event: EventProtocol) -> Void)?, _ options: AddEventListenerOptions?) -> NSString
   
-  func dispatchEvent(_ event: Event)
+  func dispatchEvent(_ event: EventProtocol)
   
   /**
       Removes the callback for the given id (as Swift/Obj-C cannot compare equality of closures).

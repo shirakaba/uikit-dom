@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     
     let _ = self.view.addEventListener(
       "tap",
-      {(event: UIKitDOM.Event) -> Void in
+      {(event: UIKitDOM.EventProtocol) -> Void in
         print("[UIView] Got a tap event during phase: \(event.eventPhase)")
         event.preventDefault()
         event.stopPropagation()
@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     )
     let _ = scrollView.addEventListener(
       "tap",
-      {(event: UIKitDOM.Event) -> Void in
+      {(event: UIKitDOM.EventProtocol) -> Void in
         print("[UIScrollView] Got a tap event during phase: \(event.eventPhase)")
         event.preventDefault()
         event.stopPropagation()

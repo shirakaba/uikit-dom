@@ -13,3 +13,9 @@ public final class ObjectAssociation<T: AnyObject> {
     set { objc_setAssociatedObject(index, Unmanaged.passUnretained(self).toOpaque(), newValue, policy) }
   }
 }
+
+@objc public class ClosureSleeve: NSObject {
+  let closure:()->()
+  init(_ closure: @escaping()->()) { self.closure = closure }
+  @objc func invoke() { closure() }
+}
