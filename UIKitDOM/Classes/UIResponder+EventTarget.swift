@@ -78,12 +78,12 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     guard let self = self as? UIView else { return }
     
     if(type == "tap" || type == "doubletap"){
-//      let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
-//      tapRecognizer.numberOfTapsRequired = type == "doubletap" ? 2 : 1
-//      self.addGestureRecognizer(tapRecognizer)
+      let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+      tapRecognizer.numberOfTapsRequired = type == "doubletap" ? 2 : 1
+      self.addGestureRecognizer(tapRecognizer)
       
-      // tapRecognizer.cancelsTouchesInView
-      // self.isUserInteractionEnabled = true
+//      tapRecognizer.cancelsTouchesInView = false
+//      self.isUserInteractionEnabled = true
       // self.addGestur
       // self.addGestureRecognizer(tapRecognizer)
       return
@@ -95,12 +95,20 @@ private let recognizedEvents: Set<NSString> = ["tap"]
   }
   
   @objc func handleTap(_ sender: UITapGestureRecognizer){
+    // It's possible that self is not the UIView that the original
+    // UITouchesEvent event was sent to - if
+    
+    // might merely have caught the event after it bubbled up from that target.
+    
+    print("[\(String(describing: type(of: self)))] HANDLE TAP. self is UIScrollView: \(self is UIScrollView)")
     guard let self = self as? UIView else { return }
     
     var touches: [CGPoint] = []
     for i in 0..<sender.numberOfTouches {
       touches.append(sender.location(ofTouch: i, in: self))
     }
+    
+    // We're too late to get the UITouchesEvent, I think.
     
     // self.dispatchEvent(<#T##event: Event##Event#>)
   }
@@ -177,7 +185,7 @@ func getResponderChain(_ responder: UIResponder) -> [UIResponder] {
   return chain
 }
 
-func handleEvent(
+private func handleEvent(
   listenersForType: NSMutableDictionary,
   event: Event
 ){

@@ -148,6 +148,12 @@
   public func preventDefault() {
     defaultPrevented = true
     returnValue = false
+    
+    if let target = self.target as? UIView {
+      let isUserInteractionEnabled = target.isUserInteractionEnabled
+      target.isUserInteractionEnabled = false
+      target.isUserInteractionEnabled = isUserInteractionEnabled
+    }
   }
   
   public func stopImmediatePropagation() {

@@ -19,12 +19,14 @@ extension UIView {
   @objc func swizzled_point(inside point: CGPoint, with event: UIEvent?) -> Bool {
     let result = swizzled_point(inside: point, with: event)
     
-    // If the hit test succeeded, then keep a record of this view as being the
-    // last-hit UIView that UIKit was traversing past with this event. We can
-    // then ascertain what the target for the event is without access to private
-    // APIs.
-    if(result && event != nil){
-      UIView.lastHitMap.setObject(self, forKey: event)
+    if let event = event {
+      // If the hit test succeeded, then keep a record of this view as being the
+      // last-hit UIView that UIKit was traversing past with this event. We can
+      // then ascertain what the target for the event is without access to private
+      // APIs.
+      if(result){
+        UIView.lastHitMap.setObject(self, forKey: event)
+      }
     }
     
     print("[\(String(describing: type(of: self))):\(result)] swizzled_point(inside:point, with:\(String(describing: event).replacingOccurrences(of: "\n", with: "")))")
