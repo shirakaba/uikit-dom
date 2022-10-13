@@ -282,10 +282,9 @@ private func handleEvent(
   // Keep track of whether we're bubbling or capturing.
   let initialEventPhase = event.eventPhase
   
-  for key in listenersForType.keys {
-    guard let callbackAndOptions = listenersForType[key] else { continue }
-    let callback = callbackAndOptions.callback
-    let options = callbackAndOptions.options
+  for listenerId in listenersForType.keys {
+    guard let listener = listenersForType[listenerId] else { continue }
+    let callback = listener.callback, options = listener.options
     
     if(event.target === event.currentTarget){
       event.eventPhase = event.AT_TARGET
@@ -293,7 +292,7 @@ private func handleEvent(
     
     callback(event)
     if(options.once){
-      listenersForType.removeValue(forKey: key)
+      listenersForType.removeValue(forKey: listenerId)
     }
     guard event.propagation != EventPropagation.stopImmediate else { return }
     
