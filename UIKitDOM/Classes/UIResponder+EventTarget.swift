@@ -1,16 +1,31 @@
 private var eventListenerCount: Int = 0
 private let recognizedEvents: Set<NSString> = ["tap"]
 
+class CallbackAndOptions: NSObject {
+  let callback: (EventProtocol) -> Void
+  let options: AddEventListenerOptions
+  
+  init(callback: @escaping (EventProtocol) -> Void, options: AddEventListenerOptions) {
+    self.callback = callback
+    self.options = options
+  }
+}
+
 @objc extension UIResponder: EventTarget, UIGestureRecognizerDelegate {
-  @nonobjc private static let listenerMapAssociation = ObjectAssociation<NSMutableDictionary>()
-  var listenerMap: NSMutableDictionary {
+  @nonobjc private static let listenerMapAssociation = ObjectAssociation<Dictionary<NSString, Dictionary<Int, CallbackAndOptions>>>()
+  // {
+  //    [eventType: string]: {
+  //      [id: number]: CallbackAndOptions;
+  //    }
+  // }
+  var listenerMap: Dictionary<NSString, Dictionary<Int, CallbackAndOptions>> {
     get {
       // Lazily initialise.
       if let _listenerMap = UIResponder.listenerMapAssociation[self] {
         return _listenerMap
       }
       
-      let _listenerMap = NSMutableDictionary()
+      let _listenerMap = Dictionary<NSString, Dictionary<Int, CallbackAndOptions>>()
       UIResponder.listenerMapAssociation[self] = _listenerMap
       return _listenerMap
     }
@@ -21,19 +36,19 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     _ type: NSString,
     _ callback: ((EventProtocol) -> Void)? = nil,
     _ options: AddEventListenerOptions? = nil
-  ) -> NSString {
-    guard let callback = callback else { return "0" }
+  ) -> NSNumber {
+    guard let callback = callback else { return 0 }
     let options = options ?? AddEventListenerOptions()
-    guard !(options.signal?.aborted ?? false) else { return "0" }
+    guard !(options.signal?.aborted ?? false) else { return 0 }
     
     // Ideally we'd compare equality with existing callbacks, but that's not
     // possible in Swift.
-    let listenersForType: NSMutableDictionary = listenerMap.object(forKey: type) as? NSMutableDictionary ?? NSMutableDictionary()
+    var listenersForType: Dictionary<Int, CallbackAndOptions> = listenerMap[type] ?? Dictionary()
     
     eventListenerCount += 1;
-    let listenerId = String(eventListenerCount) as NSString
-    listenersForType.setObject([callback, options], forKey: listenerId)
-    listenerMap.setObject(listenersForType, forKey: type)
+    let listenerId = eventListenerCount
+    listenersForType.updateValue(CallbackAndOptions(callback: callback, options: options), forKey: listenerId)
+    listenerMap.updateValue(listenersForType, forKey: type)
     
     self.listenForNativeEvent(type: type)
     
@@ -71,7 +86,7 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     // view’s responder chain.
     // https://developer.apple.com/documentation/uikit/uigesturerecognizer
     
-    return listenerId
+    return listenerId as NSNumber
   }
   
   func listenForNativeEvent(type: NSString, callback: ((EventProtocol) -> Void)? = nil){
@@ -135,22 +150,26 @@ private let recognizedEvents: Set<NSString> = ["tap"]
 //    set { onTapBackingVar = newValue }
 //  }
   
-  public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-    print("gestureRecognizer(\(NSStringFromClass(type(of: gestureRecognizer.view!))), shouldRequireFailureOf: \(NSStringFromClass(type(of: otherGestureRecognizer.view!))))")
-    
-    // Requires that this gesturesRecognizer will only take a look if the other
-    // gestureRecognizer closer to the root already failed. This would allow us
-    // to let capturing listeners see the event first.
-    var nextResponder = self.next
-    while nextResponder != nil {
-      if(otherGestureRecognizer.view === nextResponder){
-        return true
-      }
-      nextResponder = nextResponder?.next
-    }
-    
-    return false
+  public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    return true
   }
+  
+//  public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//    print("gestureRecognizer(\(NSStringFromClass(type(of: gestureRecognizer.view!))), shouldRequireFailureOf: \(NSStringFromClass(type(of: otherGestureRecognizer.view!))))")
+//
+//    // Requires that this gesturesRecognizer will only take a look if the other
+//    // gestureRecognizer closer to the root already failed. This would allow us
+//    // to let capturing listeners see the event first.
+//    var nextResponder = self.next
+//    while nextResponder != nil {
+//      if(otherGestureRecognizer.view === nextResponder){
+//        return true
+//      }
+//      nextResponder = nextResponder?.next
+//    }
+//
+//    return false
+//  }
   
   public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
     // The current problem is that we never call the user's UIEvent -> ()
@@ -185,12 +204,18 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     for responder in chain {
       event.currentTarget = responder
       
-      guard let listenersForType = listenerMap.object(forKey: eventType) as? NSMutableDictionary else { continue }
+      guard var listenersForType = listenerMap[eventType] else { continue }
       
       handleEvent(
-        listenersForType: listenersForType,
+        listenersForType: &listenersForType,
         event: event
       )
+      
+      // In case we handled a "once" event, depleting this type's listeners.
+      if(listenersForType.count == 0){
+        listenerMap.removeValue(forKey: eventType)
+      }
+      
       guard event.propagation == EventPropagation.resume else { return }
     }
     
@@ -200,12 +225,20 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     for responder in chain.reversed() {
       event.currentTarget = responder
       
-      guard let listenersForType = listenerMap.object(forKey: eventType) as? NSMutableDictionary else { continue }
+      // FIXME: seems like listenersForType is populated on every responder in
+      // the chain.
+      guard var listenersForType = listenerMap[eventType] else { continue }
       
       handleEvent(
-        listenersForType: listenersForType,
+        listenersForType: &listenersForType,
         event: event
       )
+      
+      // In case we handled a "once" event, depleting this type's listeners.
+      if(listenersForType.count == 0){
+        listenerMap.removeValue(forKey: eventType)
+      }
+      
       guard event.propagation == EventPropagation.resume else { return }
       
       // If the event doesn't bubble, then we do dispatch it at the target but
@@ -217,12 +250,12 @@ private let recognizedEvents: Set<NSString> = ["tap"]
     }
   }
   
-  public func removeEventListenerById(_ type: NSString, _ id: NSString) {
-    guard id != "0", let listenersForType: NSMutableDictionary = listenerMap.object(forKey: type) as? NSMutableDictionary else { return }
-    listenersForType.removeObject(forKey: id)
+  public func removeEventListenerById(_ type: NSString, _ id: NSNumber) {
+    guard id != 0, var listenersForType: Dictionary<Int, CallbackAndOptions> = listenerMap[type] else { return }
+    listenersForType.removeValue(forKey: Int(id.intValue))
     
     if(listenersForType.count == 0){
-      listenerMap.removeObject(forKey: type)
+      listenerMap.removeValue(forKey: type)
     }
   }
 }
@@ -243,27 +276,26 @@ func getResponderChain(_ responder: UIResponder) -> [UIResponder] {
 }
 
 private func handleEvent(
-  listenersForType: NSMutableDictionary,
+  listenersForType: inout Dictionary<Int, CallbackAndOptions>,
   event: EventProtocol
 ){
   // Keep track of whether we're bubbling or capturing.
   let initialEventPhase = event.eventPhase
   
-  for key in listenersForType.allKeys {
-    guard let listenersForTypeValue = listenersForType.object(forKey: key),
-          let listenerTuple = listenersForTypeValue as? [AnyObject],
-          let callback = listenerTuple[0] as? (EventProtocol) -> Void,
-          let options = listenerTuple[1] as? AddEventListenerOptions
-    else { continue }
+  for key in listenersForType.keys {
+    guard var callbackAndOptions = listenersForType[key] else { continue }
+    let callback = callbackAndOptions.callback
+    let options = callbackAndOptions.options
     
     if(event.target === event.currentTarget){
       event.eventPhase = event.AT_TARGET
-      callback(event)
-      if(options.once){
-        listenersForType.removeObject(forKey: key)
-      }
-      guard event.propagation != EventPropagation.stopImmediate else { return }
     }
+    
+    callback(event)
+    if(options.once){
+      listenersForType.removeValue(forKey: key)
+    }
+    guard event.propagation != EventPropagation.stopImmediate else { return }
     
     if(initialEventPhase == event.CAPTURING_PHASE && !options.capture){
       continue
