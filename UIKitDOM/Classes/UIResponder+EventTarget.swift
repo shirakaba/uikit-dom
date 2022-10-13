@@ -204,7 +204,7 @@ class CallbackAndOptions: NSObject {
     for responder in chain {
       event.currentTarget = responder
       
-      guard var listenersForType = listenerMap[eventType] else { continue }
+      guard var listenersForType = responder.listenerMap[eventType] else { continue }
       
       handleEvent(
         listenersForType: &listenersForType,
@@ -225,9 +225,7 @@ class CallbackAndOptions: NSObject {
     for responder in chain.reversed() {
       event.currentTarget = responder
       
-      // FIXME: seems like listenersForType is populated on every responder in
-      // the chain.
-      guard var listenersForType = listenerMap[eventType] else { continue }
+      guard var listenersForType = responder.listenerMap[eventType] else { continue }
       
       handleEvent(
         listenersForType: &listenersForType,
