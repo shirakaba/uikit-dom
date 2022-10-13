@@ -15,8 +15,8 @@ class ViewController: UIViewController {
       "tap",
       {(event: UIKitDOM.EventProtocol) -> Void in
         print("[UIView] Got a tap event during phase: \(event.eventPhase)")
-        event.preventDefault()
-        event.stopPropagation()
+//        event.preventDefault()
+//        event.stopPropagation()
       },
       AddEventListenerOptions(capture: 1)
     )
@@ -24,14 +24,14 @@ class ViewController: UIViewController {
       "tap",
       {(event: UIKitDOM.EventProtocol) -> Void in
         print("[UIScrollView] Got a tap event during phase: \(event.eventPhase)")
-        event.preventDefault()
-        event.stopPropagation()
+//        event.preventDefault()
+//        event.stopPropagation()
       },
       AddEventListenerOptions(capture: 1)
     )
     
     let event = UIEvent()
     event.initEvent("tap", true, true)
-    scrollView.dispatchEvent(event)
+    // scrollView.dispatchEvent(event)
   }
 }
