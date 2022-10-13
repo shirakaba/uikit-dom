@@ -283,7 +283,7 @@ private func handleEvent(
   let initialEventPhase = event.eventPhase
   
   for key in listenersForType.keys {
-    guard var callbackAndOptions = listenersForType[key] else { continue }
+    guard let callbackAndOptions = listenersForType[key] else { continue }
     let callback = callbackAndOptions.callback
     let options = callbackAndOptions.options
     
