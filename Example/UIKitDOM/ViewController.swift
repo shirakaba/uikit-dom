@@ -50,6 +50,31 @@ class ViewController: UIViewController {
       AddEventListenerOptions(capture: 1)
     )
     
+    // It seems that the implicit gesture recognisers on UIControls swallow up
+    // the events, so unless we can find a way to simultaneously recognise with
+    // both the implicit recogniser and our added one (maybe by doing a class
+    // extension of UIControl that implements UIGestureRecognizerDelegate?),
+    // we'll have to add our own tap event listener onto any UIControl unless we
+    // want to have holes in our ability to handle taps in capturing phase.
+    let _ = button2.addEventListener(
+      "tap",
+      {(event: UIKitDOM.EventProtocol) -> Void in
+        print("[UIButton 2] Got a tap event during phase: \(event.eventPhase)")
+//        event.preventDefault()
+//        event.stopPropagation()
+      },
+      AddEventListenerOptions(capture: 1)
+    )
+    let _ = textField.addEventListener(
+      "tap",
+      {(event: UIKitDOM.EventProtocol) -> Void in
+        print("[UITextField] Got a tap event during phase: \(event.eventPhase)")
+//        event.preventDefault()
+//        event.stopPropagation()
+      },
+      AddEventListenerOptions(capture: 1)
+    )
+    
     let event = UIEvent()
     event.initEvent("tap", true, true)
     // scrollView.dispatchEvent(event)

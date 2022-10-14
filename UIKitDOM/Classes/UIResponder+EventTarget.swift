@@ -151,7 +151,34 @@ class CallbackAndOptions: NSObject {
 //  }
   
   public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-    return false
+    // Don't allow gesture recognisers of the same type.
+    // This is merely a workaround. What we're aiming for is for the deepest
+    // gesture recogniser to get the event, and returning false here happened to
+    // do the trick. We'll have to find a better approach once we want to
+    // distinguish two synthetic events from the same gesture recogniser (e.g.
+    // tap and doubletap both from UITapGestureRecognizer).
+    if(gestureRecognizer is UITapGestureRecognizer && otherGestureRecognizer is UITapGestureRecognizer){
+      return false
+    }
+    if(gestureRecognizer is UIPanGestureRecognizer && otherGestureRecognizer is UIPanGestureRecognizer){
+      return false
+    }
+    if(gestureRecognizer is UISwipeGestureRecognizer && otherGestureRecognizer is UISwipeGestureRecognizer){
+      return false
+    }
+    if #available(iOS 13.0, *) {
+      if(gestureRecognizer is UIHoverGestureRecognizer && otherGestureRecognizer is UIHoverGestureRecognizer){
+        return false
+      }
+    }
+    if(gestureRecognizer is UIPinchGestureRecognizer && otherGestureRecognizer is UIPinchGestureRecognizer){
+      return false
+    }
+    if(gestureRecognizer is UIScreenEdgePanGestureRecognizer && otherGestureRecognizer is UIScreenEdgePanGestureRecognizer){
+      return false
+    }
+    
+    return true
   }
   
 //  public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
